@@ -1,0 +1,14 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+button,
+input,
+body,
+textarea,
+select,
+option {
+  font-family: "Cairo Play", sans-serif;
+}
