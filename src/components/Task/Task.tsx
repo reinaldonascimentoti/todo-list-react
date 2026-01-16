@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import style from "./task.module.scss";
 interface Tasks {
   title: string;
@@ -10,15 +10,33 @@ export const Task: React.FC = () => {
   const [tasks, setTasks] = useState([] as Tasks[]);
   function handleSubmitAddTask(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    console.log(tasks);
-    if (taskTitle.length <3) {
+    if (taskTitle.length < 3) {
       alert("Tarefa muito curta, não pode ter menos de 3 caracteres");
-      return
+      return;
     }
-    setTasks([
-      ...tasks, { title: taskTitle, done: false, id: new Date().getTime() }
-    ]);
-    setTaskTitle('');
+    const newTask = [
+       ...tasks, {title: taskTitle, done: false, id: new Date().getTime() },
+    ];
+    setTasks(newTask);
+    localStorage.setItem("tasks", JSON.stringify(newTask));
+    setTaskTitle("");
+  }
+    useEffect(() => {
+    const storedTasks = localStorage.getItem("tasks");
+    console.log(storedTasks);
+    if (storedTasks) {
+      setTasks(JSON.parse(storedTasks));
+    }
+  }, []);
+  function toggleTask(id: number) {
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return { ...task, done: !task.done };
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   }
   return (
     <section className={style.container}>
@@ -36,16 +54,17 @@ export const Task: React.FC = () => {
         <button type="submit">Adicionar</button>
       </form>
       <ul>
-       {tasks.length > 0 ? (
-  tasks.map((task) => (
-    <li key={task.id}>
-      <input type="checkbox" id={`${task.id}`} />
-      <label htmlFor={`${task.id}`}>{task.title}</label>
-    </li>
-  ))
-) : (
-  <p>Nenhuma tarefa encontrada</p>
-)}      
+        {tasks.map((task) => (
+          <li key={task.id}>
+            <input 
+            type="checkbox" 
+            id={String(task.id)}
+            checked={task.done} 
+            onChange={() => toggleTask(task.id)}
+             />
+            <label htmlFor={String(task.id)}>{task.title}</label>
+          </li>
+        ))}
       </ul>
     </section>
   );
