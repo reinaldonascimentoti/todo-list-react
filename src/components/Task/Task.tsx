@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import style from "./task.module.scss";
-interface Tasks {
-  title: string;
-  done: boolean;
-  id: number;
-}
+import { TaskContext } from "../../context/TaskContext";
+
 export const Task: React.FC = () => {
   const [taskTitle, setTaskTitle] = useState("");
-  const [tasks, setTasks] = useState([] as Tasks[]);
+  const [isEditing, setIsEditing] = useState(false);
+  const { tasks, setTasks } = useContext(TaskContext);
+
   function handleSubmitAddTask(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (taskTitle.length < 3) {
@@ -15,19 +14,15 @@ export const Task: React.FC = () => {
       return;
     }
     const newTask = [
-       ...tasks, {title: taskTitle, done: false, id: new Date().getTime() },
+      ...tasks,
+      { title: taskTitle, done: false, id: new Date().getTime() },
     ];
     setTasks(newTask);
     localStorage.setItem("tasks", JSON.stringify(newTask));
     setTaskTitle("");
+    setIsEditing(false);
   }
-    useEffect(() => {
-    const storedTasks = localStorage.getItem("tasks");
-    console.log(storedTasks);
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
-    }
-  }, []);
+
   function toggleTask(id: number) {
     const updatedTasks = tasks.map((task) => {
       if (task.id === id) {
@@ -38,6 +33,21 @@ export const Task: React.FC = () => {
     setTasks(updatedTasks);
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   }
+  function deleteTask(id: number) {
+    const filteredTasks = tasks.filter((task) => task.id !== id);
+    setTasks(filteredTasks);
+    localStorage.setItem("tasks", JSON.stringify(filteredTasks));
+  }
+  function editTask(id: number) {
+    const taskToEdit = tasks.find((task) => task.id === id);
+    if (!taskToEdit) return;
+    setTaskTitle(taskToEdit.title);
+    const filteredTasks = tasks.filter((task) => task.id !== id);
+    setTasks(filteredTasks);
+    localStorage.setItem("tasks", JSON.stringify(filteredTasks));
+    setIsEditing(true);
+  }
+
   return (
     <section className={style.container}>
       <form onSubmit={handleSubmitAddTask}>
@@ -51,18 +61,27 @@ export const Task: React.FC = () => {
             placeholder="Descreva a tarefa"
           />
         </div>
-        <button type="submit">Adicionar</button>
+        <button type="submit">{isEditing ? "Salvar" : "Adicionar"}</button>
       </form>
       <ul>
         {tasks.map((task) => (
-          <li key={task.id}>
-            <input 
-            type="checkbox" 
-            id={String(task.id)}
-            checked={task.done} 
-            onChange={() => toggleTask(task.id)}
-             />
-            <label htmlFor={String(task.id)}>{task.title}</label>
+          <li className={task.done ? style.done_input : ""} key={task.id}>
+            <input
+              type="checkbox"
+              id={String(task.id)}
+              checked={task.done}
+              onChange={() => toggleTask(task.id)}
+            />
+            <label
+              className={task.done ? style.done : ""}
+              htmlFor={String(task.id)}
+            >
+              {task.title}
+            </label>
+            <div>
+              <button onClick={() => editTask(task.id)}>Editar</button>
+              <button onClick={() => deleteTask(task.id)}>Excluir</button>
+            </div>
           </li>
         ))}
       </ul>

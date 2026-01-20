@@ -59,7 +59,7 @@
       color: blueviolet;
       border-radius: 5px;
       margin-bottom: 1rem;
-      padding: 0.25rem 0.85rem;
+      padding: 0.5rem 0.85rem;
       gap: 1rem;
 
       input[type="checkbox"] {
@@ -95,5 +95,39 @@
       font-size: 1.25rem;
       font-weight: 500;
     }
+
+    div {
+      margin-left: auto;
+      display: flex;
+      gap: 0.5rem;
+
+      button {
+        display: inline-block;
+        padding: 0 0.5rem;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+        background-color: burlywood;
+        cursor: pointer;
+        color: black;
+        font-size: 0.85rem;
+      }
+
+      button:hover {
+        background-color: gray;
+        color: white;
+      }
+    }
   }
+}
+
+.done_input {
+  border-style: solid !important;
+  color: green !important;
+  border-width: 1.5px !important;
+}
+
+.done {
+  text-decoration: line-through;
+  color: whitesmoke;
 }
